@@ -3,6 +3,7 @@ import {StyleSheet,View,Button,TextInput,FlatList,Text, ActivityIndicator} from 
 import films from '../Helpers/FilmsData';
 import FilmItem from './FilmItem.js';
 import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi';
+import FilmList from './FilmList.js';
 
 class Search extends React.Component{
     
@@ -52,13 +53,19 @@ class Search extends React.Component{
                             onSubmitEditing={()=> this._loadFilms()}
                             placeholder="Search" /> 
                 <Button style={{ height:50 }}title="Rechercher" onPress={()=> this._loadFilms()}/>
-                <FlatList 
+                {/* <FlatList 
                     data = {this.state.films}
                     keyExtractor={(item)=>item.id.toString()}
                     renderItem={({item})=><FilmItem 
                         film={item}
                         detailFilm={this._detailFilm}
                         />}
+                /> */}
+                <FilmList
+                  films = {this.state.films}
+                  navigation = {this.props.navigation}
+                  loadFilm = {this._loadFilms}
+                  favoriteList={false}
                 />
                 {this._displayLoading()}
             </View>

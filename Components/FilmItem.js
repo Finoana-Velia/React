@@ -3,10 +3,12 @@ import {StyleSheet,View,Text,Image,TouchableOpacity} from 'react-native';
 import {getImage} from '../API/TMDBApi.js';
 
 class FilmItem extends React.Component{
+    
     render(){
         //console.log(this.props);
         const film = this.props.film;
         const detailFilm = this.props.detailFilm;
+        
         return (
             <TouchableOpacity 
                 onPress={() => detailFilm(film.id)}
@@ -88,7 +90,7 @@ const styles = StyleSheet.create ({
     
     date_style : {
         flex : 1,
-        flexDirection : 'row',
+        flexDirection : 'row', 
     }
 
 });

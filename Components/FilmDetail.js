@@ -1,7 +1,9 @@
 import React from 'react';
 import {StatusBar} from 'expo-status-bar';
-import {StyleSheet, View , Image ,Text, ActivityIndicator, ScrollView } from 'react-native';
+import {StyleSheet, View , Image ,Text, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import {getFilm,getImage} from '../API/TMDBApi.js';
+import { connect } from 'react-redux';
+ 
 
 class FilmDetail extends React.Component{
     
@@ -14,10 +16,40 @@ class FilmDetail extends React.Component{
     }
 
     componentDidMount(){
-        getFilm(this.props.route.params.idFilm).then(data => this.setState({
-            film : data,
-            isLoading : false
-        }));
+        const favoriteFilmIndex = this.props.favoritesFilm.findIndex(item => item.id === this.props.route.params.idFilm)
+    if (favoriteFilmIndex !== -1) { 
+      this.setState({
+        film: this.props.favoritesFilm[favoriteFilmIndex],
+        isLoading : false
+      })
+      return
+    }
+    
+    this.setState({ isLoading: true })
+    getFilm(this.props.route.params.idFilm).then(data => {
+      this.setState({
+        film: data,
+        isLoading: false
+      })
+    })
+    }
+    
+    componentDidUpdate(){
+       console.log(this.props.favoritesFilm);
+    }
+    
+    _toggleFavorite(){
+        const action = {type : "TOGGLE_FAVORITE", value: this.state.film };
+        this.props.dispatch(action);
+    }
+    
+    _displayIconFavorite(){
+        var sourceIcon = require('../Images/favoritesstar_79753.png');
+        if(this.props.favoritesFilm.findIndex(item => item.id === this.state.film.id) !== -1){
+            //favoris
+            sourceIcon = require('../Images/symbole-d\'etoile-rempli-de-favoris.png');
+        }
+        return sourceIcon;
     }
 
     _displayFilm(){
@@ -42,7 +74,16 @@ class FilmDetail extends React.Component{
                             <View date>
                                 <Text>Date de creation: {film.release_date}</Text>
                             </View>
-                            <View style={{flex:3,flexDirection:'row'}}></View>
+                            <View style={{flex:3,flexDirection:'row'}}>
+                                <TouchableOpacity  
+                                    onPress={()=> this._toggleFavorite()}
+                                    style = {styles.favorite_container}>
+                                    <Image
+                                        style = {styles.icon_Style}
+                                      source =  {this._displayIconFavorite()}
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                     <View>
@@ -63,6 +104,8 @@ class FilmDetail extends React.Component{
         }
     }
     render() {
+        console.log(' -------- Film detail------------');
+        //console.log(this.props);
         const idFilm = this.props.route.params.idFilm;
         //console.log(this.props);
         return(
@@ -90,6 +133,17 @@ const styles = StyleSheet.create({
 
     scroll_style :{
         flex:1
+    },
+
+    Favorite_container : {
+        alignItems : 'center',
+       
+    },
+    
+    icon_Style :
+    {
+        width : 45,
+        height : 45
     }
 })
 
@@ -125,4 +179,10 @@ const styles_detail = StyleSheet.create({
 
 })
 
-export default FilmDetail;
+const mapStateToProps = (state) => {
+    return {
+        favoritesFilm : state.favoritesFilm
+    };
+}; 
+
+export default connect(mapStateToProps)(FilmDetail);
